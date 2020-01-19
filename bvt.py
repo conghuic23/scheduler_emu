@@ -158,6 +158,8 @@ plt.title('bvt')
 
 plt.legend()
 plt.grid(True)
+plt.xlabel("time(ms)")
+plt.ylabel("EVT")
 plt.savefig('bvt.png')
 
 

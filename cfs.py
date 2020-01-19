@@ -172,6 +172,8 @@ plt.title('cfs')
 
 plt.legend()
 plt.grid(True)
+plt.xlabel("time(ms)")
+plt.ylabel("vruntime")
 plt.savefig('cfs.png')
 
 
