@@ -74,7 +74,7 @@ class CScheduler():
     def __t2c(self, thread, t):
         return t * self.max_weight / thread.weight
 
-    def reset_credit(self):
+    def reset_credit(self, t):
         for idx in range(len(self.threads)):
             if self.threads[idx].credit < 0:
                 while self.threads[idx].credit < 0:
@@ -85,6 +85,10 @@ class CScheduler():
                 self.threads[idx].credit = CREDIT_INIT + CREDIT_MIN
             elif self.threads[idx].credit < CREDIT_MIN:
                 self.threads[idx].credit = CREDIT_MIN
+
+            self.threads[idx].real.append(t)
+            self.threads[idx].credit_list.append(self.threads[idx].credit)
+            print("reset !!!!!",self.threads[idx].name, self.threads[idx].credit)
 
     def init(self):
         self.__find_max_weight()
@@ -120,8 +124,20 @@ class CScheduler():
         """
         reset credit if next credit <= 0
         """
+        reset = 0
         if self.threads[new].credit <= 0:
-            self.reset_credit()
+            # pass current time to it
+            self.reset_credit(self.threads[current].real[-1])
+            reset = 1
+
+        if reset == 1:
+            # find lowest credit
+            largest = MIN_INT
+            new = None
+            for x in range(len(self.threads)):
+                if self.threads[x].credit > largest:
+                    largest = self.threads[x].credit
+                    new = x
 
         # find second largest credit
         sec_largest = MIN_INT
@@ -133,7 +149,7 @@ class CScheduler():
         """
         start new thread
         """
-        if self.current is not None and self.current != new:
+        if reset !=1 and self.current is not None and self.current != new:
             # pick the new one
             self.threads[new].real.append(self.threads[current].real[-1])
             self.threads[new].credit_list.append(self.threads[new].credit_list[-1])
@@ -164,7 +180,7 @@ threads = [gcc, bigsim, mpeg]
 bvt = CScheduler(threads)
 bvt.init()
 
-run = 50
+run = 80
 t= 0
 
 for x in range(run):
